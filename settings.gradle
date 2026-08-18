@@ -1,0 +1,18 @@
+/*
+ * settings.gradle - Project Settings
+ * 
+ * This file tells Gradle:
+ * 1. What is the name of this project
+ * 2. What sub-modules (sub-projects) exist
+ * 
+ * Gradle reads this file FIRST before any build.gradle files.
+ */
+
+// Name of the root project (used in build outputs and IDE)
+rootProject.name = 'springboot-gradle-posts'
+
+// Include sub-modules
+// Each 'include' tells Gradle: "Look for a build.gradle in this folder"
+include 'posts-domain'          // Pure business entities (no framework dependencies)
+include 'posts-application'     // Use cases and ports (depends on domain)
+include 'posts-infrastructure'  // Spring Boot, JPA, Web (depends on application)

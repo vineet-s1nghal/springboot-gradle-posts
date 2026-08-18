@@ -1,0 +1,30 @@
+/*
+ * posts-application/build.gradle
+ * 
+ * APPLICATION MODULE - Use cases and business operations
+ * 
+ * This module contains:
+ * - Use cases (CreatePostUseCase, GetPostUseCase, etc.)
+ * - Ports/Interfaces (PostRepository interface)
+ * - Application-level exceptions (PostNotFoundException)
+ * 
+ * This module:
+ * - DEPENDS ON: posts-domain (can use domain entities)
+ * - DOES NOT depend on: Spring, JPA, or any framework
+ * 
+ * Why separate from domain?
+ * - Domain = WHAT your business concepts are (Post entity)
+ * - Application = WHAT operations you can do (create, read, update, delete)
+ * 
+ * Why no frameworks?
+ * - Use cases are pure business logic
+ * - Should be testable without starting Spring
+ * - Interfaces (ports) define WHAT we need, not HOW it's implemented
+ */
+
+dependencies {
+    // Depend on the domain module
+    // This allows us to import and use classes from posts-domain
+    // The colon (:) prefix means "module in this project"
+    implementation project(':posts-domain')
+}

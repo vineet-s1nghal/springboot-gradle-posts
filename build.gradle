@@ -1,0 +1,80 @@
+/*
+ * Root build.gradle - Shared Configuration
+ * 
+ * This file contains configuration that applies to ALL modules.
+ * Individual modules can override or extend these settings.
+ */
+
+// =============================================================================
+// PLUGINS
+// =============================================================================
+// Plugins add capabilities to Gradle (like installing extensions)
+
+plugins {
+    // Java plugin - enables Java compilation
+    id 'java'
+    
+    // Spring Boot plugin - adds bootRun, bootJar tasks
+    // 'apply false' means: load it but don't activate here
+    // We'll activate it only in posts-infrastructure (the runnable module)
+    // Using 3.4.5 for compatibility with Gradle 9.x
+    id 'org.springframework.boot' version '3.4.5' apply false
+    
+    // Spring Dependency Management - automatically manages versions
+    // of Spring-related dependencies so you don't have to specify versions
+    id 'io.spring.dependency-management' version '1.1.7' apply false
+}
+
+// =============================================================================
+// ALL PROJECTS (root + all subprojects)
+// =============================================================================
+
+allprojects {
+    // Maven coordinates - identifies your project uniquely
+    // Format: group:artifact:version (e.g., com.vineet.posts:posts-domain:0.0.1-SNAPSHOT)
+    group = 'com.vineet.posts'
+    version = '0.0.1-SNAPSHOT'
+    
+    // Where to download dependencies from
+    repositories {
+        // Maven Central - the main public repository for Java libraries
+        // URL: https://repo.maven.apache.org/maven2/
+        mavenCentral()
+    }
+}
+
+// =============================================================================
+// SUBPROJECTS ONLY (posts-domain, posts-application, posts-infrastructure)
+// =============================================================================
+
+subprojects {
+    // Apply Java plugin to all subprojects
+    apply plugin: 'java'
+    
+    // Java version configuration
+    java {
+        // Source code uses Java 17 syntax
+        sourceCompatibility = JavaVersion.VERSION_17
+        // Compiled bytecode runs on Java 17+ JVM
+        targetCompatibility = JavaVersion.VERSION_17
+    }
+    
+    // Common test dependencies for all modules
+    dependencies {
+        // JUnit 5 for testing
+        testImplementation 'org.junit.jupiter:junit-jupiter:5.10.2'
+        // JUnit Platform Launcher (required for running tests)
+        testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+    }
+    
+    // Configure test task to use JUnit 5
+    tasks.named('test') {
+        useJUnitPlatform()
+    }
+    
+    // Configure compiler to show all warnings
+    tasks.withType(JavaCompile).configureEach {
+        options.encoding = 'UTF-8'
+        options.compilerArgs << '-Xlint:all'
+    }
+}

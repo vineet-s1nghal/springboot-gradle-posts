@@ -1,0 +1,110 @@
+/*
+ * posts-infrastructure/build.gradle
+ * 
+ * INFRASTRUCTURE MODULE - Framework implementations and adapters
+ * 
+ * This module contains:
+ * - Spring Boot application (main class)
+ * - Web adapter (REST controllers, DTOs)
+ * - Persistence adapter (JPA entities, repositories)
+ * - Configuration classes
+ * 
+ * This is the ONLY module that:
+ * - Uses Spring Boot
+ * - Uses JPA/Hibernate
+ * - Connects to databases
+ * - Exposes REST APIs
+ * 
+ * Dependency chain:
+ *   posts-infrastructure → posts-application → posts-domain
+ *   (we only declare posts-application; posts-domain comes transitively)
+ */
+
+plugins {
+    // Activate Spring Boot plugin (loaded in root build.gradle)
+    // This adds tasks: bootRun, bootJar, bootBuildImage
+    id 'org.springframework.boot'
+    
+    // Activate Spring dependency management
+    // This automatically manages versions of Spring-related dependencies
+    // So we don't need to specify versions for spring-boot-starter-* dependencies
+    id 'io.spring.dependency-management'
+}
+
+dependencies {
+    // =========================================================================
+    // PROJECT DEPENDENCIES
+    // =========================================================================
+    
+    // Depend on application module (which transitively includes domain)
+    implementation project(':posts-application')
+    
+    // =========================================================================
+    // SPRING BOOT STARTERS
+    // =========================================================================
+    // Starters are "bundles" of related dependencies
+    // Version is managed by spring-dependency-management plugin
+    
+    // Web starter - Spring MVC, embedded Tomcat, Jackson JSON
+    // Enables: @RestController, @GetMapping, @PostMapping, etc.
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    
+    // Data JPA starter - Spring Data JPA, Hibernate ORM
+    // Enables: @Entity, @Repository, JpaRepository interface
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    
+    // Validation starter - Bean Validation (JSR-380)
+    // Enables: @NotNull, @NotBlank, @Size, @Valid, etc.
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+    
+    // =========================================================================
+    // DATABASE
+    // =========================================================================
+    
+    // PostgreSQL JDBC driver
+    // runtimeOnly = only needed at runtime, not at compile time
+    // (We code against JPA interfaces, not PostgreSQL-specific classes)
+    runtimeOnly 'org.postgresql:postgresql'
+    
+    // =========================================================================
+    // API DOCUMENTATION
+    // =========================================================================
+    
+    // SpringDoc OpenAPI - generates Swagger UI automatically
+    // Access at: http://localhost:8080/swagger-ui.html
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.3.0'
+    
+    // =========================================================================
+    // TESTING
+    // =========================================================================
+    
+    // Spring Boot Test starter - includes JUnit 5, Mockito, AssertJ
+    // Also includes MockMvc for testing controllers
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    
+    // H2 in-memory database for testing
+    // Tests use H2 instead of PostgreSQL (faster, no setup needed)
+    testRuntimeOnly 'com.h2database:h2'
+}
+
+// =========================================================================
+// TASK CONFIGURATION
+// =========================================================================
+
+tasks.named('test') {
+    // Use JUnit 5 platform for running tests
+    useJUnitPlatform()
+}
+
+// Configure bootJar task (creates executable JAR)
+tasks.named('bootJar') {
+    // Include build timestamp in JAR manifest
+    manifest {
+        attributes(
+            'Built-By': System.getProperty('user.name'),
+            'Build-Timestamp': new java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ").format(new Date()),
+            'Implementation-Title': project.name,
+            'Implementation-Version': project.version
+        )
+    }
+}

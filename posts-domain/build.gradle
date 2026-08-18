@@ -1,0 +1,24 @@
+/*
+ * posts-domain/build.gradle
+ * 
+ * DOMAIN MODULE - The heart of your application
+ * 
+ * This module contains:
+ * - Business entities (Post)
+ * - Business rules and logic
+ * 
+ * IMPORTANT: This module has NO external dependencies!
+ * - No Spring
+ * - No JPA/Hibernate
+ * - No web frameworks
+ * 
+ * Why? The domain should be:
+ * - Framework-agnostic (can work with any framework)
+ * - Testable in isolation (just plain Java)
+ * - Stable (doesn't change when you switch databases or web frameworks)
+ * 
+ * All common settings (Java 17, JUnit 5) come from the root build.gradle
+ */
+
+// No additional dependencies needed - pure Java only!
+// JUnit 5 is inherited from root build.gradle for testing
