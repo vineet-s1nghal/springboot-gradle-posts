@@ -22,9 +22,19 @@
  * - Interfaces (ports) define WHAT we need, not HOW it's implemented
  */
 
+plugins {
+    // java-library plugin enables 'api' dependency configuration
+    // 'api' exposes dependencies to consumers (unlike 'implementation')
+    id 'java-library'
+}
+
 dependencies {
     // Depend on the domain module
-    // This allows us to import and use classes from posts-domain
-    // The colon (:) prefix means "module in this project"
-    implementation project(':posts-domain')
+    // Using 'api' instead of 'implementation' so that:
+    // - posts-application can use domain classes
+    // - posts-infrastructure (which depends on application) can ALSO use domain classes
+    // 
+    // 'implementation' = dependency is private, not exposed to consumers
+    // 'api' = dependency is exposed to consumers (transitive)
+    api project(':posts-domain')
 }
