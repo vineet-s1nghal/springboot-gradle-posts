@@ -1,0 +1,67 @@
+# =============================================================================
+# docker-compose.yml - Local Development Database
+# =============================================================================
+# 
+# This file defines the PostgreSQL container for local development.
+# 
+# Commands:
+#   Start:    docker-compose up -d
+#   Stop:     docker-compose down
+#   Logs:     docker-compose logs -f postgres
+#   Reset:    docker-compose down -v  (deletes all data!)
+#
+# =============================================================================
+
+services:
+  # ---------------------------------------------------------------------------
+  # PostgreSQL Database
+  # ---------------------------------------------------------------------------
+  postgres:
+    # Image: Official PostgreSQL 16 on Alpine Linux (small footprint)
+    image: postgres:16-alpine
+    
+    # Container name: Makes it easy to reference in commands
+    # e.g., docker logs posts-db
+    container_name: posts-db
+    
+    # Environment variables: Configure the database
+    environment:
+      # Superuser username (for this database instance)
+      POSTGRES_USER: posts_user
+      
+      # Superuser password (⚠️ Change in production!)
+      POSTGRES_PASSWORD: posts_password
+      
+      # Default database to create on first run
+      POSTGRES_DB: posts_db
+    
+    # Port mapping: host_port:container_port
+    # Your app connects to localhost:5432, Docker forwards to container
+    ports:
+      - "5432:5432"
+    
+    # Volume: Persist data even when container stops
+    # Without this, data is lost every time you run "docker-compose down"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    
+    # Health check: Docker can verify the database is ready
+    # Useful for dependent services and debugging
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U posts_user -d posts_db"]
+      interval: 5s      # Check every 5 seconds
+      timeout: 5s       # Wait max 5 seconds for response
+      retries: 5        # Fail after 5 unsuccessful attempts
+      start_period: 10s # Wait 10s before first check (startup time)
+    
+    # Restart policy: Automatically restart if container crashes
+    restart: unless-stopped
+
+# =============================================================================
+# Volumes: Named volumes for data persistence
+# =============================================================================
+volumes:
+  postgres_data:
+    # This creates a Docker-managed volume
+    # Data survives container restarts and even "docker-compose down"
+    # Only "docker-compose down -v" deletes volume data

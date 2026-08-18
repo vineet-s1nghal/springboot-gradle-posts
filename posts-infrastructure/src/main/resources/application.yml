@@ -1,0 +1,149 @@
+# =============================================================================
+# application.yml - Spring Boot Configuration
+# =============================================================================
+#
+# This file configures how Spring Boot behaves.
+# YAML format is more readable than .properties for nested config.
+#
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Spring Core Configuration
+# -----------------------------------------------------------------------------
+spring:
+  # Application name (shows in logs and actuator)
+  application:
+    name: posts-api
+
+  # ---------------------------------------------------------------------------
+  # Database Connection (DataSource)
+  # ---------------------------------------------------------------------------
+  datasource:
+    # JDBC URL format: jdbc:postgresql://host:port/database
+    url: jdbc:postgresql://localhost:5432/posts_db
+    
+    # Credentials (must match docker-compose.yml)
+    username: posts_user
+    password: posts_password
+    
+    # JDBC driver class (Spring Boot auto-detects, but explicit is clearer)
+    driver-class-name: org.postgresql.Driver
+    
+    # Connection pool settings (HikariCP is the default)
+    hikari:
+      # Pool name (for monitoring/logging)
+      pool-name: PostsHikariPool
+      
+      # Maximum connections in the pool
+      maximum-pool-size: 10
+      
+      # Minimum idle connections to maintain
+      minimum-idle: 5
+      
+      # Max time to wait for a connection from pool (30 seconds)
+      connection-timeout: 30000
+      
+      # Max time a connection can sit idle in pool (10 minutes)
+      idle-timeout: 600000
+      
+      # Max lifetime of a connection in pool (30 minutes)
+      max-lifetime: 1800000
+
+  # ---------------------------------------------------------------------------
+  # JPA / Hibernate Configuration
+  # ---------------------------------------------------------------------------
+  jpa:
+    # Database platform (helps Hibernate generate correct SQL)
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    
+    # Schema management strategy
+    # - none: Do nothing (production)
+    # - validate: Validate schema matches entities (staging)
+    # - update: Update schema to match entities (development) ⚠️
+    # - create: Drop and recreate on startup
+    # - create-drop: Create on startup, drop on shutdown
+    hibernate:
+      ddl-auto: update
+    
+    # Show SQL queries in console (helpful for learning/debugging)
+    show-sql: true
+    
+    # Additional Hibernate properties
+    properties:
+      hibernate:
+        # Format SQL for readability
+        format_sql: true
+        
+        # Show parameter values in SQL (⚠️ disable in production - security risk)
+        # Requires logging level TRACE for org.hibernate.type.descriptor.sql
+        # use_sql_comments: true
+        
+        # Batch size for bulk operations (performance optimization)
+        jdbc:
+          batch_size: 25
+        
+        # Order inserts/updates to enable batching
+        order_inserts: true
+        order_updates: true
+
+# -----------------------------------------------------------------------------
+# Server Configuration
+# -----------------------------------------------------------------------------
+server:
+  # Port to run the application on
+  port: 8080
+  
+  # Error handling
+  error:
+    # Include detailed error messages in responses (development only!)
+    include-message: always
+    include-binding-errors: always
+    include-stacktrace: on_param
+    include-exception: false
+
+# -----------------------------------------------------------------------------
+# API Documentation (SpringDoc OpenAPI / Swagger)
+# -----------------------------------------------------------------------------
+springdoc:
+  # OpenAPI JSON endpoint
+  api-docs:
+    path: /api-docs
+    enabled: true
+  
+  # Swagger UI configuration
+  swagger-ui:
+    path: /swagger-ui.html
+    enabled: true
+    # Sort operations alphabetically
+    operations-sorter: alpha
+    # Sort tags alphabetically
+    tags-sorter: alpha
+    # Expand operations by default
+    doc-expansion: list
+
+# -----------------------------------------------------------------------------
+# Logging Configuration
+# -----------------------------------------------------------------------------
+logging:
+  level:
+    # Root logger level
+    root: INFO
+    
+    # Our application (more verbose for debugging)
+    com.vineet.posts: DEBUG
+    
+    # Spring framework (reduce noise)
+    org.springframework: INFO
+    
+    # Hibernate SQL logging
+    org.hibernate.SQL: DEBUG
+    
+    # Show SQL parameter values (⚠️ disable in production)
+    org.hibernate.orm.jdbc.bind: TRACE
+    
+    # Connection pool stats
+    com.zaxxer.hikari: INFO
+  
+  # Log pattern for console output
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
